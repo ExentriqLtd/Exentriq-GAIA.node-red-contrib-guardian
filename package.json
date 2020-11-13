@@ -1,0 +1,30 @@
+{
+    "name": "node-red-contrib-guardian",
+    "version": "1.0.0",
+    "main": "form_in.js",
+    "description": "Guardian integration",
+    "author": "Emilio Sabatucci <sabatucci@gmail.com>",
+    "keywords": [
+        "node-red"
+    ],
+    "dependencies": {
+        "follow-redirects": "^1.10.0",
+        "kafka-node": "0.5.9",
+        "rest": "^2.0.0",
+        "body-parser": "^1.15.2",
+        "connect-busboy": "0.0.2",
+        "cors": "^2.8.1",
+        "formidable": "^1.0.17",
+        "is-utf8": "^0.2.1",
+        "media-typer": "^0.3.0",
+        "multer": "^1.2.0",
+        "on-headers": "^1.0.1",
+        "raw-body": "^2.1.7",
+        "cookie-parser": "1.4.3"
+    },
+    "node-red": {
+        "nodes": {
+            "form-in": "form_in.js"
+        }
+    }
+}
