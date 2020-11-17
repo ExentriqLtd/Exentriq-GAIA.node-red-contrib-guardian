@@ -2,8 +2,8 @@
     "name": "node-red-contrib-guardian",
     "version": "1.0.0",
     "main": "form_in.js",
-    "description": "Guardian integration",
-    "author": "Emilio Sabatucci <sabatucci@gmail.com>",
+    "description": "Exentriq Commons",
+    "author": "Emilio Sabatucci <emilio@exentriq.com>",
     "keywords": [
         "node-red"
     ],

@@ -173,13 +173,15 @@ module.exports = function(RED) {
                 return;
             }
             var node = this;
-            node.log("config " + n.myforms);
+            node.log("config " + n.rules);
             this.url = "/"+n.owner+n.url;
+            node.warn(this.url);
             this.method = n.method;
             this.swaggerDoc = n.swaggerDoc;
             this.formid = n.myforms;
+            this.rules = n.rules || [];
 
-            
+            node.log("rules.length " + this.rules.length);
 
             this.errorHandler = function(err,req,res,next) {
                 node.warn(err);
@@ -189,9 +191,56 @@ module.exports = function(RED) {
             this.callback = function(req,res) {
                 var msgid = RED.util.generateId();
                 res._msgid = msgid;
-                node.log("req.body " + req.body);
+                node.log("req.body " + req.body.action);
                 var payload = req.body;
-                if(!payload.formId){
+                
+                var onward = [];
+                node.log("node.rules.length " + node.rules.length);
+                for (var i=0; i<node.rules.length; i+=1) {
+		                    var rule = node.rules[i];
+		                    var test = payload.action;
+		                    
+		                    //not used for now
+		                    var actionId = payload.actionId;
+		                    
+		                    node.log("rule " + rule.t);
+		                    
+		                    if(rule.t == "eq"){
+			                    if(test == rule.v){
+				                    //if defined actionId rule, it must be equal, otherwise pass all the incoming activity types
+				                    
+				                    if(rule.v2 && rule.v2 === actionId){
+					                    onward.push({_msgid:msgid,req:req,res:createResponseWrapper(node,res),payload:req.body});
+				                    }else if(!rule.v2){
+					                    onward.push({_msgid:msgid,req:req,res:createResponseWrapper(node,res),payload:req.body});
+				                    }else
+				                    	onward.push(null);
+				                    
+				                }else
+				                	onward.push(null);
+				                    
+		                    }else if(rule.t == "form")
+		                    {
+			                    node.log("rulev2 " + rule.v2 + " " + payload.formId);
+			                    if(rule.v2 && rule.v2 === payload.formId){
+				                    //match the form id
+				                    onward.push({_msgid:msgid,req:req,res:createResponseWrapper(node,res),payload:req.body});
+				                    //node.send();
+			                    }else if(!rule.v2){
+				                    //formId not specified == all forms
+				                    onward.push({_msgid:msgid,req:req,res:createResponseWrapper(node,res),payload:req.body});
+				                    node.send();
+			                    }else
+			                    	onward.push(null);
+		                    }else{
+			                    onward.push(null);
+		                    }
+		                }
+		                
+		                node.send(onward);
+                
+                
+                /*if(!payload.formId){
 	                node.warn("no form id ");
                 }else if(payload.formId != node.formid){
 	                node.warn("bad form id " + payload.formId);
@@ -201,7 +250,7 @@ module.exports = function(RED) {
                     node.send({_msgid:msgid,req:req,res:createResponseWrapper(node,res),payload:req.query});
                 } else {
                     node.send({_msgid:msgid,req:req,res:createResponseWrapper(node,res)});
-                }
+                }*/
             };
 
             var httpMiddleware = function(req,res,next) { next(); }
@@ -255,6 +304,6 @@ module.exports = function(RED) {
             this.warn(RED._("httpin.errors.not-created"));
         }
     }
-    RED.nodes.registerType("form-in",FormIn);
+    RED.nodes.registerType("Actions-In",FormIn);
 
 }

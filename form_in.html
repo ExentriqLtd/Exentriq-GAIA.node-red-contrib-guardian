@@ -14,7 +14,7 @@
   limitations under the License.
 -->
 
-<script type="text/x-red" data-template-name="form-in">
+<script type="text/x-red" data-template-name="Actions-In">
     <div class="form-row" style="display: none">
         <label for="node-input-method"><i class="fa fa-tasks"></i> <span data-i18n="httpin.label.method"></span></label>
         <select type="text" id="node-input-method" style="width:70%;">
@@ -27,18 +27,15 @@
     </div>
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
-        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+        <input type="text" id="node-input-name" >
     </div>
     <!--div class="form-row">
         <label for="node-input-formid"><i class="fa fa-tag"></i> Form ID</label>
         <input type="text" id="node-input-formid">
     </div-->
     
-    <div class="form-row">
-        <label for="node-input-myforms"><i class="fa fa-tasks"></i> My Forms</label>
-        <select disabled type="text" id="node-input-myforms" style="width:70%;">
-        
-        </select>
+    <div class="form-row node-input-rule-container-row">
+	    <ol id="node-input-rule-container"></ol>
     </div>
     
     <div class="form-row row-swagger-doc" style="display: none">
@@ -48,7 +45,7 @@
     <div id="node-input-tip" class="form-tips"><span data-i18n="httpin.tip.in"></span><code><span id="node-input-path"></span></code>.</div>
 </script>
 
-<script type="text/x-red" data-help-name="form-in">
+<script type="text/x-red" data-help-name="Actions-In">
     <p>Provides an input form.</p>
     <p>The resulting message has the following properties:
         <ul>
@@ -75,8 +72,8 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('form-in',{
-        category: 'Guardian',
+    RED.nodes.registerType('Actions-In',{
+        category: 'Exentriq Commons',
         color:"rgb(231, 231, 174)",
         defaults: {
             name: {value:""},
@@ -84,38 +81,186 @@
             method: {value:"post",required:true},
             //formid: {value:"",required:true},
             swaggerDoc: {type:"swagger-doc", required:false},
-            myforms: {value:"",required:true}
+            //myforms: {value:"",required:true},
+            propertyType: { value:"msg" },
+            rules: {value:[{t:"eq", v:""}]},
+            checkall: {value:"true", required:true},
+            outputs: {value:1}
         },
         inputs:0,
         outputs:1,
         icon: "white-globe.png",
         label: function() {
-            if (this.name) {
-                return this.name;
-            } else if (this.url) {
-                var root = RED.settings.httpNodeRoot;
-                if (root.slice(-1) != "/") {
-                    root = root+"/";
-                }
-                if (this.url.charAt(0) == "/") {
-                    root += this.url.slice(1);
-                } else {
-                    root += this.url;
-                }
-                return "form " + this.myforms;
-            } else {
-                return RED.settings.httpNodeRoot;
-            }
+            return "Actions In"
         },
         labelStyle: function() {
             return this.name?"node_label_italic":"";
         },
+        
+         oneditsave: function() {
+            var rules = $("#node-input-rule-container").editableList('items');
+            var ruleset;
+            var node = this;
+            node.rules= [];
+            rules.each(function(i) {
+                var rule = $(this);
+                var type = rule.find("select.main_event").val();
+                var r = {t:type};
+                if (type === "eq") {
+                    r.v = rule.find(".node-input-rule-value").typedInput('value');
+                    r.vt = rule.find(".node-input-rule-value").typedInput('type');
+                }
+                r.v2 = rule.find(".event_option").val();
+                r.v2t = "formId";//rule.find(".event_option").typedInput('type');
+                node.rules.push(r);
+            });
+            this.outputs = node.rules.length;
+            this.propertyType = $("#node-input-property").typedInput('type');
+        },
                 
         oneditprepare: function() {
 	        
+	        var node = this;
+            var previousValueType = {value:"prev",label:this._("inject.previous"),hasValue:false};
+
+            $("#node-input-property").typedInput({default:this.propertyType||'msg',types:['msg','flow','global']});
+            var operators = [
+                {v:"form",t:"Form Submission"},
+                {v:"eq",t:"=="}
+            ];
+
+            var andLabel = "Event Type";
+            
+            function resizeRule(rule) {
+                var newWidth = rule.width();
+                /*var selectField = rule.find("select");
+                var type = selectField.val()||"";
+                var valueField = rule.find(".node-input-rule-value");
+                var btwnField1 = rule.find(".node-input-rule-btwn-value");
+                var btwnField2 = rule.find(".node-input-rule-btwn-value2");
+                var selectWidth;
+                if (type.length < 4) {
+                    selectWidth = 60;
+                } else {
+                    selectWidth = 180;
+                }
+                //selectField.width(selectWidth);
+                btwnField2.typedInput("width",(newWidth-selectWidth-70));
+                if (type === "eq") {
+                   valueField.typedInput("width",(newWidth-selectWidth-140))
+                   btwnField2.typedInput("width",(newWidth-selectWidth-140));
+                } else {
+                   valueField.typedInput("width",(newWidth-selectWidth-70));
+                }*/
+                var selectField = rule.find("select");
+                selectField.css("width", "auto");
+                selectField.css("margin-right", "5px");
+                var valueField = rule.find(".node-input-rule-value");
+                valueField.typedInput("width",(newWidth-selectField.width()-52));
+            }
+
+            $("#node-input-rule-container").css('min-height','250px').css('min-width','450px').editableList({
+                addItem: function(container,i,opt) {
+                    var rule = opt;
+                    console.log("opt", opt);
+                    if (!rule.hasOwnProperty('t')) {
+                        rule.t = 'eq';
+                    }
+                    var row = $('<div/>').appendTo(container);
+                    //var row2 = $('<div/>',{style:"padding-top: 5px; padding-left: 175px;"}).appendTo(container);
+                    //var row3 = $('<div/>',{style:"padding-top: 5px; padding-left: 0px;"}).appendTo(container);
+                    //var firstLabel = $('<span/>',{style:"font-weight:bold; display:inline-block; width:90px;", class:"node-input-rule-btwn-label"}).text(" Event ").appendTo(row);
+                    var selectField = $('<select class="main_event"/>',{style:"width:auto; margin-left: 5px; text-align: center;"}).appendTo(row);
+                    for (var d in operators) {
+                        selectField.append($("<option></option>").val(operators[d].v).text(operators[d].t));
+                    }
+                    var valueField = $('<input/>',{class:"node-input-rule-value",type:"text",style:""}).appendTo(row).typedInput({default:'str',types:['str']});
+                    //var btwnValueField = $('<input/>',{class:"node-input-rule-btwn-value",type:"text",style:"margin-left: 5px;"}).appendTo(row).typedInput({default:'num',types:['msg','flow','global','str','num',previousValueType]});
+                    /*var btwnAndLabel = $('<span/>',{style:"font-weight:bold; display:inline-block; width:90px;", class:"node-input-rule-btwn-label"}).text(" "+andLabel+" ").appendTo(row3);*/
+                   // var btwnValue2Field = $('<input/>',{class:"node-input-rule-btwn-value2",type:"text",style:"margin-left:5px;margin-right:2px;"}).appendTo(row3).typedInput({default:'str',types:['str']});
+                    var finalspan = $('<span/>',{style:"float: right;margin-top: 6px;"}).appendTo(row);
+                    finalspan.append(' &#8594; <span class="node-input-rule-index">'+(i+1)+'</span> ');
+                    
+                    selectField.change(function() {
+                        container.find(".forms_select").remove();
+                        resizeRule(container);
+                       
+                        var type = selectField.val();
+						//btwnValue2Field.typedInput('show');
+                        if (type === "form") {
+                                valueField.typedInput('hide');
+                                loadForms(node, function(selectEl){
+	                                row.append(selectEl);
+	                                
+	                                if (rule.t == "form") {
+				                         console.log("a select " + rule.v2);
+				                         console.log($("option[value="  + rule.v2 + "]").length)
+				                        container.find("option[value="  + rule.v2 + "]").attr("selected", "selected");
+				                    }
+                                })
+                        } else if (type !== "eq") {
+                                valueField.typedInput('hide');
+                        } else {
+                                valueField.typedInput('show');
+                        }
+						//row2.hide();
+                        //row3.show();
+                    });
+                    selectField.val(rule.t);
+                    
+                    console.log("rule " + rule.t);
+                    if (rule.t == "form") {
+	                    /* console.log("select " + rule.v2);
+                         console.log($("option[value="  + rule.v2 + "]").length)
+                        container.find("option[value="  + rule.v2 + "]").attr("selected", "selected");*/
+                    } else if (typeof rule.v != "undefined") {
+	                    //btwnValue2Field.show();
+                        valueField.typedInput('value',rule.v);
+                        valueField.typedInput('type',rule.vt||'str');
+                    }
+                    selectField.change();
+                },
+                removeItem: function(opt) {
+                    var rules = $("#node-input-rule-container").editableList('items');
+                    rules.each(function(i) { $(this).find(".node-input-rule-index").html(i+1); });
+                },
+                resizeItem: resizeRule,
+                sortItems: function(rules) {
+                    var rules = $("#node-input-rule-container").editableList('items');
+                    rules.each(function(i) { $(this).find(".node-input-rule-index").html(i+1); });
+                },
+                sortable: true,
+                removable: true
+            });
+
+            for (var i=0;i<this.rules.length;i++) {
+                var rule = this.rules[i];
+                $("#node-input-rule-container").editableList('addItem',rule);
+            }
+            
+            var guid = function() {
+                function s4() {
+                  return Math.floor((1 + Math.random()) * 0x10000)
+                    .toString(16)
+                    .substring(1);
+                }
+                return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+                  s4() + '-' + s4() + s4() + s4();
+              }
+            if(!this.group){
+        		this.group = guid();
+            }
 	        
-	        function loadForms(node){
-	      
+	        
+	        function loadForms(node, callback){
+				console.log("load forms")
+				
+				var selectEl = $('<select class="event_option forms_select"/>',{style:"width:auto; margin-left: 5px; text-align: center;"});
+				selectEl.append("<option value='438'>test</option>")
+				selectEl.append("<option value='439'>test2</option>")
+				if(callback)
+					callback(selectEl);
+				return;
 		        var exentriqServicePath = RED.settings.exentriq? RED.settings.exentriq.rpc : "https://stage.exentriq.com/JSON-RPC";
 		        var spaceId = node.owner;
 		        console.log("spaceId " + spaceId)
@@ -126,45 +271,21 @@
 						        data: entity
 						    }).then(function(res) {
 					   		
-					   			$("#node-input-myforms").removeAttr("disabled");
+					   			var selectField = $('<select/>',{style:"width:auto; margin-left: 5px; text-align: center;"});
+                    
 					   			var list = res.result.list;
 					   			for(var i=0; i < list.length; i++){
-						   			if(i == 0){
-							   			if(node.myforms == ""){
-								   			node.myforms = list[i].id;
-							   			}else{
-								   			
-							   			}
-						   			}
-					   				$("#node-input-myforms").append("<option value='" + list[i].id + "'>" +list[i].title + "</option>")
+						   			selectField.append("<option value='" + list[i].id + "'>" +list[i].title + "</option>")
+					   				
 					   			}
 					   			
-					   			console.log("node.myforms " + node.myforms);
-					   			if(node.myforms != ""){
-						   			console.log($("option[value=" + node.myforms + "]"));
-								   	$("option[value=" + node.myforms + "]").attr("selected", "selected");
-								   	//$("#node-input-myforms").val(node.myforms)
-							   	}
+							   	if(callback)
+							   		callback(selectField);
 					   			
 					   		}) 
 		        
 	        }
 
-	        
-	        console.log("this.myforms" + this.myforms);
-	        var robotUsername = $("#node-input-rusername").val();
-	        var robotPassword = $("#node-input-rpassword").val();
-	        
-			var node = this;
-			loadForms(node);
-			
-			$("#node-input-rpassword").on("blur", function(){
-				loadForms(node);
-			})
-			$("#node-input-rusername").on("blur", function(){
-				loadForms(node);
-			})
-	        
             var root = RED.settings.httpNodeRoot;
             if (root.slice(-1) == "/") {
                 root = root.slice(0,-1);
