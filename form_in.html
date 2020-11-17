@@ -255,12 +255,15 @@
 	        function loadForms(node, callback){
 				console.log("load forms")
 				
-				var selectEl = $('<select class="event_option forms_select"/>',{style:"width:auto; margin-left: 5px; text-align: center;"});
-				selectEl.append("<option value='438'>test</option>")
-				selectEl.append("<option value='439'>test2</option>")
-				if(callback)
-					callback(selectEl);
-				return;
+				var local = false; //true to test in local env
+				if(local){
+					var selectEl = $('<select class="event_option forms_select"/>',{style:"width:auto; margin-left: 5px; text-align: center;"});
+					selectEl.append("<option value='438'>test</option>")
+					selectEl.append("<option value='439'>test2</option>")
+					if(callback)
+						callback(selectEl);
+						return;
+				}
 		        var exentriqServicePath = RED.settings.exentriq? RED.settings.exentriq.rpc : "https://stage.exentriq.com/JSON-RPC";
 		        var spaceId = node.owner;
 		        console.log("spaceId " + spaceId)
