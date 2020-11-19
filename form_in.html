@@ -313,16 +313,7 @@
 	        function loadForms(node, callback){
 				console.log("load forms")
 				
-				var local = false; //true to test in local env
-				if(local){
-					var selectEl = $('<select class="event_option forms_select"/>',{style:"width:auto; margin-left: 5px; text-align: center;"});
-					selectEl.append("<option value='438'>test</option>")
-					selectEl.append("<option value='439'>test2</option>")
-					if(callback)
-						callback(selectEl);
-						return;
-				}
-		        var exentriqServicePath = RED.settings.exentriq? RED.settings.exentriq.rpc : "https://stage.exentriq.com/JSON-RPC";
+				var exentriqServicePath = RED.settings.exentriq? RED.settings.exentriq.rpc : "https://stage.exentriq.com/JSON-RPC";
 		        var spaceId = node.owner.split("-")[0];
 		        console.log("spaceId " + spaceId)
 		        var entity=JSON.stringify({ id: '', method: 'spaceFormService.getListFormsIds', params: [spaceId] });
@@ -332,7 +323,7 @@
 						        data: entity
 						    }).then(function(res) {
 					   		
-					   			var selectField = $('<select class="event_option forms_select"/>',{style:"width:auto; margin-left: 5px; text-align: center;"});
+					   			var selectField = $('<select style="width:auto" class="event_option forms_select"/>',{style:"width:auto; margin-left: 5px; text-align: center;"});
                     
 					   			var list = res.result.list;
 					   			for(var i=0; i < list.length; i++){
