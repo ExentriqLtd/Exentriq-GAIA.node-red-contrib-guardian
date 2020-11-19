@@ -323,7 +323,7 @@
 						return;
 				}
 		        var exentriqServicePath = RED.settings.exentriq? RED.settings.exentriq.rpc : "https://stage.exentriq.com/JSON-RPC";
-		        var spaceId = node.owner;
+		        var spaceId = node.owner.split("-")[0];
 		        console.log("spaceId " + spaceId)
 		        var entity=JSON.stringify({ id: '', method: 'spaceFormService.getListFormsIds', params: [spaceId] });
 					   		$.ajax({
