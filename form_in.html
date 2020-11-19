@@ -26,8 +26,8 @@
         <input type="text" id="node-input-url"  placeholder="/url">
     </div>
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
-        <input type="text" id="node-input-name" >
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="The node name">
     </div>
     <!--div class="form-row">
         <label for="node-input-formid"><i class="fa fa-tag"></i> Form ID</label>
@@ -83,7 +83,7 @@
             swaggerDoc: {type:"swagger-doc", required:false},
             //myforms: {value:"",required:true},
             propertyType: { value:"msg" },
-            rules: {value:[{t:"eq", v:""}]},
+            rules: {value:[{t:"none", v:""}]},
             checkall: {value:"true", required:true},
             outputs: {value:1}
         },
@@ -168,14 +168,14 @@
 	                    var rule = opt;
 	                    console.log("opt", opt);
 	                    if (!rule.hasOwnProperty('t')) {
-	                        rule.t = 'eq';
+	                        //rule.t = 'eq';
 	                    }
 	                    var row = $('<div/>').appendTo(container);
 	                    //var row2 = $('<div/>',{style:"padding-top: 5px; padding-left: 175px;"}).appendTo(container);
 	                    //var row3 = $('<div/>',{style:"padding-top: 5px; padding-left: 0px;"}).appendTo(container);
 	                    //var firstLabel = $('<span/>',{style:"font-weight:bold; display:inline-block; width:90px;", class:"node-input-rule-btwn-label"}).text(" Event ").appendTo(row);
 	                    var selectField = $('<select class="main_event"/>',{style:"width:auto; margin-left: 5px; text-align: center;"}).appendTo(row);
-	                    
+	                    selectField.append($("<option value='none'> -- Select Event -- </option>"))
 	                    for (var d in operators) {
 	                        selectField.append($("<option></option>").val(operators[d].v).text(operators[d].t));
 	                    }
@@ -291,7 +291,6 @@
 				    console.log(res);
 				    
 				    var operators = [
-		                {v:"form",t:"Form Submission"},
 		                {v:"eq",t:"=="}
 		            ];
 		            
