@@ -46,29 +46,7 @@
 </script>
 
 <script type="text/x-red" data-help-name="Actions-In">
-    <p>Provides an input form.</p>
-    <p>The resulting message has the following properties:
-        <ul>
-            <li>msg.req : <a href="http://expressjs.com/api.html#req">http request</a></li>
-            <li>msg.res : <a href="http://expressjs.com/api.html#res">http response</a></li>
-        </ul>
-    </p>
-    <p>For POST/PUT requests, the body is available under <code>msg.req.body</code>. This
-       uses the <a href="http://expressjs.com/api.html#bodyParser">Express bodyParser middleware</a> to parse the content to a JSON object.
-    </p>
-    <p>
-       By default, this expects the body of the request to be url encoded:
-       <pre>foo=bar&amp;this=that</pre>
-    </p>
-    <p>
-       To send JSON encoded data to the node, the content-type header of the request must be set to
-       <code>application/json</code>.
-    </p>
-    <p>
-       <b>Note: </b>This node does not send any response to the http request.
-       This should be done with a subsequent HTTP Response node.
-    </p>
-
+    <p>Provides an input node to manage all Exentriq Notifications.</p>
 </script>
 
 <script type="text/javascript">
