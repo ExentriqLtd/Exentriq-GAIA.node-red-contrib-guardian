@@ -155,7 +155,16 @@
 	                    var selectField = $('<select class="main_event"/>',{style:"width:auto; margin-left: 5px; text-align: center;"}).appendTo(row);
 	                    selectField.append($("<option value='none'> -- Select Event -- </option>"))
 	                    for (var d in operators) {
-	                        selectField.append($("<option></option>").val(operators[d].v).text(operators[d].t));
+		                    if(operators[d].t == "label"){
+			                    selectField.append($("<option disabled></option>").text(operators[d].v.toUpperCase()));
+		                    }else
+		                    	if(operators[d].t == "form"){
+			                    	operators[d].t = "form submission"
+		                    	}
+		                    	if(operators[d].t == "customSubscriptionFlow"){
+			                    	operators[d].t == "custom subscription flow"
+		                    	}
+		                        selectField.append($("<option></option>").val(operators[d].v).text(operators[d].t));
 	                    }
 	                    var valueField = $('<input/>',{class:"node-input-rule-value",type:"text",style:""}).appendTo(row).typedInput({default:'str',types:['str']});
 	                    //var btwnValueField = $('<input/>',{class:"node-input-rule-btwn-value",type:"text",style:"margin-left: 5px;"}).appendTo(row).typedInput({default:'num',types:['msg','flow','global','str','num',previousValueType]});
@@ -273,12 +282,21 @@
 		            ];
 		            
 		            var map = res.result.map;
-		            var all = map["All"];
-		            for(var i=0; i < all.length; i++){
-			            
-			            operators.push({t:all[i], v:all[i]})
-			            
-		            }
+		            
+		            for (let key in map) {
+					   if (map.hasOwnProperty(key)) {
+					      console.log(key, map[key]);
+					      var all = map[key].list;
+					      operators.push({t:"label", v:key + " events"})
+						  for(var i=0; i < all.length; i++){
+				            
+				            operators.push({t:all[i], v:all[i]})
+				            
+						   }
+					   }
+					}
+		            
+		            
 		            
 		            console.log(operators);
 		            
