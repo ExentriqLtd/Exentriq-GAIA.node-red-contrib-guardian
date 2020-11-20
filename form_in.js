@@ -304,6 +304,6 @@ module.exports = function(RED) {
             this.warn(RED._("httpin.errors.not-created"));
         }
     }
-    RED.nodes.registerType("Actions-In",FormIn);
+    RED.nodes.registerType("Action-In",FormIn);
 
 }
