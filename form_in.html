@@ -157,7 +157,7 @@
 	                    for (var d in operators) {
 		                    if(operators[d].t == "label"){
 			                    selectField.append($("<option disabled></option>").text(operators[d].v.toUpperCase()));
-		                    }else
+		                    }else{
 		                    	if(operators[d].t == "form"){
 			                    	operators[d].t = "form submission"
 		                    	}
@@ -165,6 +165,7 @@
 			                    	operators[d].t == "custom subscription flow"
 		                    	}
 		                        selectField.append($("<option></option>").val(operators[d].v).text(operators[d].t));
+		                    }
 	                    }
 	                    var valueField = $('<input/>',{class:"node-input-rule-value",type:"text",style:""}).appendTo(row).typedInput({default:'str',types:['str']});
 	                    //var btwnValueField = $('<input/>',{class:"node-input-rule-btwn-value",type:"text",style:"margin-left: 5px;"}).appendTo(row).typedInput({default:'num',types:['msg','flow','global','str','num',previousValueType]});
