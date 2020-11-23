@@ -160,9 +160,10 @@
 		                    }else{
 		                    	if(operators[d].t == "form"){
 			                    	operators[d].t = "form submission"
-		                    	}
-		                    	if(operators[d].t == "customSubscriptionFlow"){
-			                    	operators[d].t == "custom subscription flow"
+		                    	}else if(operators[d].t == "customSubscriptionFlow"){
+			                    	operators[d].t = "custom subscription flow"
+		                    	}else{
+			                    	operators[d].t = operators[d].t =.replace("_", " ")
 		                    	}
 		                        selectField.append($("<option style=''></option>").val(operators[d].v).html("&nbsp;&nbsp;" + operators[d].t));
 		                    }
